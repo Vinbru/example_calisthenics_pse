@@ -1,0 +1,78 @@
+== *Klassen*
+
+== Non-Primitives
+
+=== Project,
+stellt das Projekt dar und enthält einen *Identifier* und die *ProjectFinances*. Da zum Zeitpunkt des Erstellens des Projektes noch keine Aktivitäten und somit auch noch keine Bezahlvorgänge vonstatten gingen, kann man die ProjectFinances schon erstellen indem man lediglich die Mitglieder (*Member*) des Projektes infrom eines Arrays mitliefert.
+
+Die Methoden beschränken sich auf einen Constructor, eine print-Methode und addActivity, mit deren Hilfe die Aktivitäten in das Projekt eingetragen werden. Dabei wird auf die entsprechende Methode der ProjectFinances zugegriffen.
+
+=== Identifier,
+verbindet ein Datum (*Date*) mit einen Namen (*Name*). Es wird sowohl von Project als auch Activity verwendet. 
+
+=== ProjectFinances,
+speichert *Stakes*, also Ansprüche und eine *ArrayList<Activity>* in der alle Aktivitäten, welche zu dem jeweiligen Projekt gehören, gespeichert werden. Wie bereits in Project erwähnt, ist hier eine Methode addActivity enthalten. diese erstellt aus den mitgelieferten *Identifier*, *Receipt* und dem *Member-Array* eine neue Aktivität (*Activity*) und fügt sie in die ArrayList ein.
+
+=== Stakes,
+stellen eine Gegenüberstellung der Ansprüche dar. Diese Klasse enthält einen *Member-Array*, welcher nötig ist um festzustellen wer wem etwas schuldet und eine Matrix, also deinen Array-of-Arrays, des Types *Money*. Ansprüche werden durch einen negativen Betrag und Schulden durch einen positiven Betrag widergespiegelt. Ein Betrag von -200 an der Stelle [2][2] heißt also, dass der Member, welcher bei members[2] steht einen Gesamtanspruch auf Erhalt von 200€ erhebt. Ein Betrag von +200 würde bedeuten, dass dieser Member insgesamt 200€ zu bezahlen hat. Die Klasse *StakeMatrixCreator* wurde geschrieben um die Erstellung der Matrix möglichst an eine eigene Klasse zu binden. Nach dem Erstellen der Matrix, steht allerdings nur fest, wer insgesamt wie viel bekommt und wer insgesamt wie viel zahlen muss. Die Berechnung dessen, wer von wem genau wie viel erhält, findet erst beim Printen statt.
+
+Die Klasse besitzt 2 Konstruktoren, einen für die Erstellung der Aktivitäten und einen, der eine leere Matrix erstellt, welcher genutzt wird um ein Project zu erstellen.
+
+Hinzu kommt noch die Methode addStakes, welche die Werte eines Stakes, dem eines anderen hinzufügt und somit dafür zuständig ist, die Werte aus einer *Activity* in das übergeordnete *Project* mit einfließen zu lassen.
+
+=== StakeMatrixCreator,
+enthält die notwendigen Methoden zur Erstellung einer Matrix des Types *Money*, also der Stake-Matrix. Dies ist die einzige Klasse bei der ich es nicht nur möglich, sondern auch für permanent durchsetzbar hielt, sie guten Gewissens als package-private zu deklarieren.
+
+=== StakesPrinter,
+ist für die Textausgabe der *Stakes* verantowrtlich. Ich habe diese Funktion in eine eigene Klasse gepackt, da diese Funktionen genug Zeilen an Code füllten um ihr eine eigene Klasse zu geben.
+
+Bei dem Vorgang des Druckens, werden aus den Gesamtansprüchen bzw. den Gesamtschulden der einzelnen *Member* auch die konkreten Werte berechnet, wer von wem was bekommt. Dafür muss allerding auch auf Informationen zugegriffen werden, welche zeigen ob ein Wert negativ oder positiv ist. Die Begründung dafür wurde bei "Stakes" aufgeführt. Leider muss dafür diese Aufgabe an die Klasse *Money* weitergeleitet werden, welche dann bei jeweiligem Ergebnis wieder die passende Methode im StakesPrinter aufruft. Ich persönlich finde das nicht besonders schön, aber wenn man keine booleans oder andere Primärtypen returnen darf, ist dies leider notwendig.
+
+=== Activity,
+ist ähnlich einem Projekt, nur enthält es anstatt der ProjectFinances die *ActivityFinances*.
+
+=== ActivityFinances, 
+enthält wie ProjectFinances ein Objekt der Klasse *Stakes* in dem die Ansprüche der Mitglieder gepspeichert werden. Zudem enthält es ein *Receipt* aus dem die notwendigen Informationen entnommen werden.
+
+Die Klasse enthält noch die Methode addStakesToProject. Diese wird mit dem Constructor aufgerufen und sorgt dafür, dass die Stakes der Aktivität auch im Projekt vermerkt werden. So kann ma Ende eine Gesamtabrechnung für das Projekt erfolgen.
+
+=== Receipt,
+speichert eine Rechnung und wer diese in welcher Höhe beglichen hat. Dafür wird ein Array des Typs *MemberPayment* verwendet.
+
+Neben der Methode createBill, welche aus den MembersPayments heraus die Gesamtwert der Rechnung ermittelt, existiert noch eine Methode generateStakes. Diese wird benötigt, man zur Erstellung der Klasse Stakes die Werte des Receipts benötigt, diese aufgrund der Calisthenics-Regeln aber nicht einfach auslesen darf.
+
+=== MemberPayment,
+besteht aus einem *Member* und einem amount des Types *Money*. Diese Klasse drückt lediglich aus, dass ein Member einen bestimmten Betrag gezahlt hat. Sie besitzt noch eine Methode addPaymentIfMemberIsPayer. Diese ist notwendig, da einem die Calisthenics-Regeln eine sinnvolle Verwendung von Booleans praktisch unmöglich machen. Diese Methode wird benötigt, wenn die Gesamtabrechnung erfolgt. Beim Durchlaufen von Schleifen muss überprüft werden ob der Member der aktuellen Stelle einen Betrag gezahlt hat oder nicht.
+
+== Primitives
+
+=== Money,
+gibt Währung wieder und wrappt damit einen Double. Zuvor habe ich einen Integer Euro und einen Integer Cent verwendet. Das hat auch funktioniert, allerdings entstand damit so viel Code, dass das ganze einfach unhandlich wurde. Die Klasse bietet alle nötigen Methoden um damit zu rechnen oder auch um es auszugeben. Leider musste ich um das durchreichen von Booleans zu verhindern, die Methoden printStakesIfNegative und printStakesLineIfPositive hinzufügen. Diese agieren mit dem StakesPrinter.
+
+=== Name,
+speichert wie man erahnen kann einen Namen, ist also ein gewrappter String. Diese Klasse wird verwendet um die Member und die Aktivitäten sowie Projekte mit Namen zu versehen. Abgesehen von print() ist noch die Methode addPaymentIfNameEqualsName vorhanden. Diese ist wie bei der Klasse Money nötig, da keine Booleans returned werden dürfen. Sie wird angewandt, wenn beim Erstellen der Stakes, bzw. dem Addieren von Geldbeträgen, Member miteinander abgeglichen werden müssen.
+
+=== Day, Month und Year,
+sind notwendig zur Erstellung eines Datums. Dabei muss überprüft werden, ob der Tag bspw. zwischen 1 und 31 liegt oder der Monat zwischen 1 und 12. Bei print() wird zudem noch eine Null vorgesetzt, falls der Wert unter 10 liegt.
+
+== Date
+
+=== Date(Inteface),
+Das Interface wird benötigt um verschiedene Typen von Daten in einen Identifier speichern zu können. Grund hierfür ist, dass bspw. die Monatsmiete für einen Monat angesetzt wird und nicht für einen konkreten Tage. Es hätte vielleicht gereicht, das ganze auf einen Tag zu setzen, so finde ich die Lösung allerdings schöner.
+
+=== Date Day, Month, Year,
+Diese Klassen drücken ein konkretes Datum aus. Dabei wird immer das nächst größere extendet. Grund dafür ist, dass ein Jahr alleine stehen kann, ein Monat aber bspw. nicht. Ebenso kann ein Monat in Kombination mit einem Jahr als Zeitangabe funktionieren. Ein Tag mit einem Monat allerdings nur, wenn dazu auch ein Jahr gehört.
+
+
+== *Probleme mit Object Calisthenics*
+
+=== Getter Setter
+Anfangs hatte ich die größten Probleme mit dem Verzicht auf Getter und Setter. Hierzu würde ich auch gerne anmerken, dass dies in dem alten Projekt, des Diary kein Problem gewesen wäre. Die einzige Schwierigkeit bestand hier allerdings darin, dass in diesem Projekt viel gerechnet werden musste. Dies ohne Getter und Setter zu lösen war schon ziemlich nervig und hat zu einer Menge an hässlichen teilweise redundanten Codes geführt. Zu Beginn (Ich glaube das ist auch noch in der ersten Abgabe die du hast der Fall), habe ich dies gelöst indem ich die Objekte anstatt sie gleich miteinander zu verrechnen ersteinmal zwischeneinander hin und her schicken musste. Nun habe ich das etwas anders gestaltet, da ich im ILIAS gesehen hatte, dass das Verwenden der INhalte einer KLasse des selben Types durchaus erlaubt sei. Anfangs ging ich davon aus, dass dies ebenfalls dem Prinzip der Object-Calisthenics widersprechen würde, da dies in meinen Augen zwar nicht direkt ein Getter ist, aber in der Funktionsweise fast auf das selbe hinausläuft. Zwar bleibt so alles in der eigenen Klasse aber prinzipiell greift man direkt auf den Wert eines anderen Objektes zu.
+
+=== Wrappen von Booleans
+Ich bin kein großer Fan des ganzen hinundher gereiche, zumal dadurch schnell sehr spezifische Methoden und Abhängigkeiten entstehen was zu immer mehr und immer komplexeren Code führen kann. Dies hat mich bereits bei der Getter/Setter Problematik gestört, hier tat es mir allerdings noch mehr weh. Ironischerweise soll durch Object Calisthenics ja auch geübt werden möglichst überschaubare Abhängigkeiten zwischen Objekten zu schaffen. Praktisch, finde ich zumindest, passiert vielmehr das genaue Gegenteil. Das Programm wird unübersichtlich. Ich zumindest habe oft den Überblick verloren was eigentlich genau auf was zugreift, einzig und allein weil man massenaht Daten durchreichen musste. Bei Booleans fand ich das besonders schade, weil man If-Abfragen so nun an Stellen durchführen muss, an denen sie rein architektonisch einfach meines Empfindens nach komplett Fehl am Platz sind. 
+
+=== Allgemeines
+Ingesamt muss ich sagen hat mich dieses Projekt zur Weißglut getrieben. Zumal es mich schon etwas frustriert hat zu wissen, dass das ganze Projekt deutlich einfacherer gewesen wäre, wenn wir eine andere Aufgabenstellung gehabt hätten. Ein Diary hätte ich nach eigener Einschätzung in 2 Tagen fertig gehabt, vielleicht auch nach einem. Dieses Projekt jedoch, mit all den Rechnungen, sah da etwas anders aus. Mir ist auch keine Alternative eingefallen bei der man auf große Teile meiner Rechnungen hätte verzichten können. Einige meiner Kommilitonen sind die Probleme anders angegangen und mussten deutlich weniger rechnen. Meiner Meinung nach wurden dabei aber Möglichkeiten außer Achte gelassen, welche in unserem konkreten Projekt zwar nicht auftauchen, prinzipiell aber sehrwohl auftauchen könnten. bspw. wenn ein Teilnehmer zwar Geld bezahlt, allerdings weniger als jeder im Durchschnitt zahlen müsste oder genau so viel, während es bei den anderen Teilnehmern aber unausgeglichen ist. Dabei muss man meines Erachtens nach Prozentrechnung anwenden und dies auch erst nachdem die Abweichung vom der Soll-Durchschnittszahlung berechnet wurde. All das unter  den Regeln der Object-Calisthenics durchzuführen war schon ziemlich nervtötend und hat mich in den letzten 2-3 Wochen, auch noch den letzten Rest Privatleben gekostet, das ich neben Uni und Sport noch aufrechterhalten zu versuche. Ich hoffe meine Abgabe reicht jetzt zum bestehen oder dass es zumindest nicht mehr viel ist, das geändert werden muss. Ich will das ganze nämlich einfach nur loswerden und in den Tiefen meiner Festplatte verrotten lassen.
+Liebe Grüße
+Vincent
